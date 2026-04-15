@@ -13,14 +13,12 @@ type Subcontractor = {
   expiration_date: string | null;
   status: string | null;
   notes: string | null;
-
   gl_expiration_date: string | null;
   gl_agent_email: string | null;
   wc_expiration_date: string | null;
   wc_agent_email: string | null;
   icec_expiration_date: string | null;
   is_wc_exempt: boolean | null;
-
   last_requested_date: string | null;
   request_status: string | null;
 };
@@ -31,7 +29,6 @@ type FormState = {
   contact_name: string;
   subcontractor_email: string;
   notes: string;
-
   gl_expiration_date: string;
   gl_agent_email: string;
   wc_expiration_date: string;
@@ -134,35 +131,6 @@ function getNearestRelevantDays(sub: Subcontractor) {
   return Math.min(...dates);
 }
 
-function getCardStyle(sub: Subcontractor): React.CSSProperties {
-  const compliance = getCompliance(sub);
-
-  if (!compliance.compliant) {
-    return {
-      border: '1px solid #dc2626',
-      borderRadius: '12px',
-      padding: '16px',
-      backgroundColor: '#fef2f2',
-    };
-  }
-
-  if (compliance.expiringSoon) {
-    return {
-      border: '1px solid #f59e0b',
-      borderRadius: '12px',
-      padding: '16px',
-      backgroundColor: '#fffbeb',
-    };
-  }
-
-  return {
-    border: '1px solid #16a34a',
-    borderRadius: '12px',
-    padding: '16px',
-    backgroundColor: '#f0fdf4',
-  };
-}
-
 function buildMailtoLink(sub: Subcontractor) {
   const recipients = [
     sub.subcontractor_email,
@@ -196,6 +164,145 @@ Thank you.`;
   return `mailto:${recipients}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
+const styles = {
+  page: {
+    maxWidth: '1100px',
+    margin: '40px auto',
+    padding: '24px',
+    fontFamily: 'Arial, sans-serif',
+    color: '#111827',
+  } as React.CSSProperties,
+  title: {
+    marginBottom: '6px',
+    fontSize: '32px',
+  } as React.CSSProperties,
+  subtitle: {
+    marginTop: 0,
+    marginBottom: '24px',
+    color: '#4b5563',
+  } as React.CSSProperties,
+  dashboard: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '14px',
+    marginBottom: '22px',
+  } as React.CSSProperties,
+  statCardBase: {
+    borderRadius: '14px',
+    padding: '18px',
+  } as React.CSSProperties,
+  filterRow: {
+    display: 'flex',
+    gap: '10px',
+    flexWrap: 'wrap',
+    marginBottom: '24px',
+  } as React.CSSProperties,
+  formCard: {
+    border: '1px solid #d1d5db',
+    borderRadius: '16px',
+    padding: '22px',
+    marginBottom: '32px',
+    backgroundColor: '#ffffff',
+  } as React.CSSProperties,
+  sectionTitle: {
+    margin: '4px 0 10px 0',
+    fontSize: '18px',
+  } as React.CSSProperties,
+  formGrid: {
+    display: 'grid',
+    gap: '12px',
+  } as React.CSSProperties,
+  input: {
+    padding: '12px',
+    borderRadius: '10px',
+    border: '1px solid #cbd5e1',
+    fontSize: '15px',
+    width: '100%',
+    boxSizing: 'border-box' as const,
+  },
+  textarea: {
+    padding: '12px',
+    borderRadius: '10px',
+    border: '1px solid #cbd5e1',
+    fontSize: '15px',
+    width: '100%',
+    minHeight: '90px',
+    boxSizing: 'border-box' as const,
+  },
+  cardGrid: {
+    display: 'grid',
+    gap: '18px',
+    marginTop: '18px',
+  } as React.CSSProperties,
+  cardBase: {
+    borderRadius: '16px',
+    padding: '20px',
+  } as React.CSSProperties,
+  topRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: '12px',
+    flexWrap: 'wrap',
+  } as React.CSSProperties,
+  companyTitle: {
+    margin: 0,
+    fontSize: '24px',
+  } as React.CSSProperties,
+  badge: {
+    display: 'inline-block',
+    padding: '6px 10px',
+    borderRadius: '999px',
+    fontSize: '13px',
+    fontWeight: 'bold',
+  } as React.CSSProperties,
+  detailGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '18px',
+    marginTop: '16px',
+  } as React.CSSProperties,
+  infoBlock: {
+    backgroundColor: 'rgba(255,255,255,0.55)',
+    borderRadius: '12px',
+    padding: '14px',
+  } as React.CSSProperties,
+  label: {
+    fontSize: '12px',
+    color: '#6b7280',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.04em',
+    marginBottom: '4px',
+  } as React.CSSProperties,
+  value: {
+    marginBottom: '10px',
+  } as React.CSSProperties,
+  actionRow: {
+    marginTop: '16px',
+    display: 'flex',
+    gap: '10px',
+    flexWrap: 'wrap',
+  } as React.CSSProperties,
+  buttonPrimary: {
+    padding: '10px 14px',
+    borderRadius: '10px',
+    border: '1px solid #111827',
+    backgroundColor: '#111827',
+    color: '#ffffff',
+    cursor: 'pointer',
+  } as React.CSSProperties,
+  buttonSecondary: {
+    padding: '10px 14px',
+    borderRadius: '10px',
+    border: '1px solid #9ca3af',
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'inline-block',
+  } as React.CSSProperties,
+};
+
 export default function HomePage() {
   const [subs, setSubs] = useState<Subcontractor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -204,9 +311,7 @@ export default function HomePage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
   async function loadSubcontractors() {
-    const { data, error } = await supabase
-      .from('subcontractors')
-      .select('*');
+    const { data, error } = await supabase.from('subcontractors').select('*');
 
     if (error) {
       console.error('Error loading subcontractors:', error);
@@ -291,7 +396,6 @@ export default function HomePage() {
     const confirmed = window.confirm(
       'Are you sure you want to delete this subcontractor record?'
     );
-
     if (!confirmed) return;
 
     const { error } = await supabase.from('subcontractors').delete().eq('id', id);
@@ -330,14 +434,12 @@ export default function HomePage() {
     loadSubcontractors();
   }
 
-  const expiredCount = subs.filter((sub) => !getCompliance(sub).compliant).length;
-
+  const noncompliantCount = subs.filter((sub) => !getCompliance(sub).compliant).length;
   const expiringSoonCount = subs.filter((sub) => {
     const c = getCompliance(sub);
     return c.compliant && c.expiringSoon;
   }).length;
-
-  const currentCount = subs.filter((sub) => {
+  const compliantCount = subs.filter((sub) => {
     const c = getCompliance(sub);
     return c.compliant && !c.expiringSoon;
   }).length;
@@ -361,7 +463,6 @@ export default function HomePage() {
           return c.compliant && !c.expiringSoon;
         });
         break;
-      case 'all':
       default:
         break;
     }
@@ -371,237 +472,132 @@ export default function HomePage() {
   }, [subs, activeFilter]);
 
   function getFilterButtonStyle(filter: FilterType): React.CSSProperties {
-    const isActive = activeFilter === filter;
-
+    const active = activeFilter === filter;
     return {
-      padding: '10px 14px',
-      borderRadius: '8px',
-      border: isActive ? '2px solid #111' : '1px solid #999',
-      backgroundColor: isActive ? '#e5e7eb' : '#fff',
-      fontWeight: isActive ? 'bold' : 'normal',
-      cursor: 'pointer',
+      ...styles.buttonSecondary,
+      border: active ? '2px solid #111827' : '1px solid #cbd5e1',
+      fontWeight: active ? 'bold' : 'normal',
+      backgroundColor: active ? '#f3f4f6' : '#ffffff',
     };
   }
 
+  function getStatusBadge(sub: Subcontractor) {
+    const c = getCompliance(sub);
+
+    if (!c.compliant) {
+      return {
+        text: 'Noncompliant',
+        style: { ...styles.badge, backgroundColor: '#fee2e2', color: '#991b1b' },
+      };
+    }
+
+    if (c.expiringSoon) {
+      return {
+        text: 'Expiring Soon',
+        style: { ...styles.badge, backgroundColor: '#fef3c7', color: '#92400e' },
+      };
+    }
+
+    return {
+      text: 'Compliant',
+      style: { ...styles.badge, backgroundColor: '#dcfce7', color: '#166534' },
+    };
+  }
+
+  function getCardStyle(sub: Subcontractor): React.CSSProperties {
+    const c = getCompliance(sub);
+
+    if (!c.compliant) {
+      return { ...styles.cardBase, border: '1px solid #f87171', backgroundColor: '#fef2f2' };
+    }
+
+    if (c.expiringSoon) {
+      return { ...styles.cardBase, border: '1px solid #fbbf24', backgroundColor: '#fffbeb' };
+    }
+
+    return { ...styles.cardBase, border: '1px solid #4ade80', backgroundColor: '#f0fdf4' };
+  }
+
   return (
-    <main style={{ maxWidth: '1000px', margin: '40px auto', padding: '20px' }}>
-      <h1>COI Tracker</h1>
-      <p>
+    <main style={styles.page}>
+      <h1 style={styles.title}>COI Tracker</h1>
+      <p style={styles.subtitle}>
         Track General Liability and either Workers&apos; Comp or ICEC exemption.
       </p>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '12px',
-          marginTop: '20px',
-          marginBottom: '24px',
-        }}
-      >
-        <div
-          style={{
-            border: '1px solid #dc2626',
-            borderRadius: '12px',
-            padding: '16px',
-            backgroundColor: '#fef2f2',
-          }}
-        >
-          <h3 style={{ margin: 0 }}>Noncompliant</h3>
-          <p style={{ fontSize: '28px', fontWeight: 'bold', margin: '8px 0 0 0' }}>
-            {expiredCount}
-          </p>
+      <div style={styles.dashboard}>
+        <div style={{ ...styles.statCardBase, border: '1px solid #f87171', backgroundColor: '#fef2f2' }}>
+          <div style={styles.label}>Noncompliant</div>
+          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{noncompliantCount}</div>
         </div>
-
-        <div
-          style={{
-            border: '1px solid #f59e0b',
-            borderRadius: '12px',
-            padding: '16px',
-            backgroundColor: '#fffbeb',
-          }}
-        >
-          <h3 style={{ margin: 0 }}>Expiring Soon</h3>
-          <p style={{ fontSize: '28px', fontWeight: 'bold', margin: '8px 0 0 0' }}>
-            {expiringSoonCount}
-          </p>
+        <div style={{ ...styles.statCardBase, border: '1px solid #fbbf24', backgroundColor: '#fffbeb' }}>
+          <div style={styles.label}>Expiring Soon</div>
+          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{expiringSoonCount}</div>
         </div>
-
-        <div
-          style={{
-            border: '1px solid #16a34a',
-            borderRadius: '12px',
-            padding: '16px',
-            backgroundColor: '#f0fdf4',
-          }}
-        >
-          <h3 style={{ margin: 0 }}>Compliant</h3>
-          <p style={{ fontSize: '28px', fontWeight: 'bold', margin: '8px 0 0 0' }}>
-            {currentCount}
-          </p>
+        <div style={{ ...styles.statCardBase, border: '1px solid #4ade80', backgroundColor: '#f0fdf4' }}>
+          <div style={styles.label}>Compliant</div>
+          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{compliantCount}</div>
         </div>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          flexWrap: 'wrap',
-          marginBottom: '24px',
-        }}
-      >
-        <button type="button" style={getFilterButtonStyle('all')} onClick={() => setActiveFilter('all')}>
-          All
-        </button>
-        <button
-          type="button"
-          style={getFilterButtonStyle('noncompliant')}
-          onClick={() => setActiveFilter('noncompliant')}
-        >
-          Noncompliant
-        </button>
-        <button
-          type="button"
-          style={getFilterButtonStyle('expiringSoon')}
-          onClick={() => setActiveFilter('expiringSoon')}
-        >
-          Expiring Soon
-        </button>
-        <button
-          type="button"
-          style={getFilterButtonStyle('compliant')}
-          onClick={() => setActiveFilter('compliant')}
-        >
-          Compliant
-        </button>
+      <div style={styles.filterRow}>
+        <button type="button" style={getFilterButtonStyle('all')} onClick={() => setActiveFilter('all')}>All</button>
+        <button type="button" style={getFilterButtonStyle('noncompliant')} onClick={() => setActiveFilter('noncompliant')}>Noncompliant</button>
+        <button type="button" style={getFilterButtonStyle('expiringSoon')} onClick={() => setActiveFilter('expiringSoon')}>Expiring Soon</button>
+        <button type="button" style={getFilterButtonStyle('compliant')} onClick={() => setActiveFilter('compliant')}>Compliant</button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: 'grid',
-          gap: '12px',
-          marginTop: '24px',
-          marginBottom: '40px',
-          padding: '20px',
-          border: editingId !== null ? '2px solid #2563eb' : '1px solid #ccc',
-          borderRadius: '12px',
-        }}
-      >
-        {editingId !== null && (
-          <p style={{ margin: 0, fontWeight: 'bold', color: '#1d4ed8' }}>
-            Editing subcontractor record
-          </p>
-        )}
+      <form onSubmit={handleSubmit} style={styles.formCard}>
+        <h2 style={styles.sectionTitle}>
+          {editingId !== null ? 'Edit Subcontractor' : 'Add Subcontractor'}
+        </h2>
 
-        <input
-          placeholder="Company name"
-          value={form.company_name}
-          onChange={(e) => setForm({ ...form, company_name: e.target.value })}
-          required
-        />
+        <div style={styles.formGrid}>
+          <input style={styles.input} placeholder="Company name" value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} required />
+          <input style={styles.input} placeholder="Trade" value={form.trade} onChange={(e) => setForm({ ...form, trade: e.target.value })} />
+          <input style={styles.input} placeholder="Contact name" value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} />
+          <input style={styles.input} placeholder="Subcontractor email" value={form.subcontractor_email} onChange={(e) => setForm({ ...form, subcontractor_email: e.target.value })} />
 
-        <input
-          placeholder="Trade"
-          value={form.trade}
-          onChange={(e) => setForm({ ...form, trade: e.target.value })}
-        />
+          <h3 style={styles.sectionTitle}>General Liability</h3>
+          <input style={styles.input} type="date" value={form.gl_expiration_date} onChange={(e) => setForm({ ...form, gl_expiration_date: e.target.value })} required />
+          <input style={styles.input} placeholder="General Liability agent email" value={form.gl_agent_email} onChange={(e) => setForm({ ...form, gl_agent_email: e.target.value })} />
 
-        <input
-          placeholder="Contact name"
-          value={form.contact_name}
-          onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
-        />
+          <label style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input type="checkbox" checked={form.is_wc_exempt} onChange={(e) => setForm({ ...form, is_wc_exempt: e.target.checked })} />
+            Workers&apos; Comp exempt
+          </label>
 
-        <input
-          placeholder="Subcontractor email"
-          value={form.subcontractor_email}
-          onChange={(e) =>
-            setForm({ ...form, subcontractor_email: e.target.value })
-          }
-        />
-
-        <h3 style={{ marginBottom: 0 }}>General Liability</h3>
-        <input
-          type="date"
-          value={form.gl_expiration_date}
-          onChange={(e) =>
-            setForm({ ...form, gl_expiration_date: e.target.value })
-          }
-          required
-        />
-        <input
-          placeholder="General Liability agent email"
-          value={form.gl_agent_email}
-          onChange={(e) => setForm({ ...form, gl_agent_email: e.target.value })}
-        />
-
-        <label style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <input
-            type="checkbox"
-            checked={form.is_wc_exempt}
-            onChange={(e) =>
-              setForm({ ...form, is_wc_exempt: e.target.checked })
-            }
-          />
-          Workers&apos; Comp exempt
-        </label>
-
-        {form.is_wc_exempt ? (
-          <>
-            <h3 style={{ marginBottom: 0 }}>ICEC</h3>
-            <input
-              type="date"
-              value={form.icec_expiration_date}
-              onChange={(e) =>
-                setForm({ ...form, icec_expiration_date: e.target.value })
-              }
-            />
-          </>
-        ) : (
-          <>
-            <h3 style={{ marginBottom: 0 }}>Workers&apos; Comp</h3>
-            <input
-              type="date"
-              value={form.wc_expiration_date}
-              onChange={(e) =>
-                setForm({ ...form, wc_expiration_date: e.target.value })
-              }
-            />
-            <input
-              placeholder="Workers' Comp agent email"
-              value={form.wc_agent_email}
-              onChange={(e) =>
-                setForm({ ...form, wc_agent_email: e.target.value })
-              }
-            />
-          </>
-        )}
-
-        <textarea
-          placeholder="Notes"
-          value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-        />
-
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <button type="submit">
-            {editingId !== null ? 'Update subcontractor' : 'Add subcontractor'}
-          </button>
-
-          {editingId !== null && (
-            <button type="button" onClick={cancelEdit}>
-              Cancel edit
-            </button>
+          {form.is_wc_exempt ? (
+            <>
+              <h3 style={styles.sectionTitle}>ICEC</h3>
+              <input style={styles.input} type="date" value={form.icec_expiration_date} onChange={(e) => setForm({ ...form, icec_expiration_date: e.target.value })} />
+            </>
+          ) : (
+            <>
+              <h3 style={styles.sectionTitle}>Workers&apos; Comp</h3>
+              <input style={styles.input} type="date" value={form.wc_expiration_date} onChange={(e) => setForm({ ...form, wc_expiration_date: e.target.value })} />
+              <input style={styles.input} placeholder="Workers' Comp agent email" value={form.wc_agent_email} onChange={(e) => setForm({ ...form, wc_agent_email: e.target.value })} />
+            </>
           )}
+
+          <textarea style={styles.textarea} placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+
+          <div style={styles.actionRow}>
+            <button type="submit" style={styles.buttonPrimary}>
+              {editingId !== null ? 'Update Subcontractor' : 'Add Subcontractor'}
+            </button>
+
+            {editingId !== null && (
+              <button type="button" style={styles.buttonSecondary} onClick={cancelEdit}>
+                Cancel Edit
+              </button>
+            )}
+          </div>
         </div>
       </form>
 
-      <h2>
-        Subcontractors{' '}
-        <span style={{ fontWeight: 'normal', fontSize: '16px' }}>
-          ({filteredSubs.length} shown)
-        </span>
+      <h2 style={styles.sectionTitle}>
+        Subcontractors <span style={{ fontWeight: 'normal', color: '#6b7280' }}>({filteredSubs.length} shown)</span>
       </h2>
 
       {loading ? (
@@ -609,113 +605,83 @@ export default function HomePage() {
       ) : filteredSubs.length === 0 ? (
         <p>No subcontractors match this filter.</p>
       ) : (
-        <div style={{ display: 'grid', gap: '16px', marginTop: '20px' }}>
+        <div style={styles.cardGrid}>
           {filteredSubs.map((sub) => {
-            const compliance = getCompliance(sub);
+            const c = getCompliance(sub);
+            const badge = getStatusBadge(sub);
 
             return (
               <div key={sub.id} style={getCardStyle(sub)}>
-                <h3>{sub.company_name}</h3>
-                <p>
-                  <strong>Overall status:</strong>{' '}
-                  {compliance.compliant ? 'Compliant' : 'Noncompliant'}
-                </p>
-                <p>
-                  <strong>Warning:</strong> {compliance.warning}
-                </p>
-                <p><strong>Trade:</strong> {sub.trade || '—'}</p>
-                <p><strong>Contact:</strong> {sub.contact_name || '—'}</p>
-                <p><strong>Sub email:</strong> {sub.subcontractor_email || '—'}</p>
+                <div style={styles.topRow}>
+                  <div>
+                    <h3 style={styles.companyTitle}>{sub.company_name}</h3>
+                    <div style={{ color: '#4b5563', marginTop: '4px' }}>{sub.trade || 'No trade listed'}</div>
+                  </div>
+                  <span style={badge.style}>{badge.text}</span>
+                </div>
 
-                <hr style={{ margin: '12px 0' }} />
+                <div style={{ marginTop: '12px', fontWeight: 'bold', color: '#374151' }}>
+                  {c.warning}
+                </div>
 
-                <p>
-                  <strong>General Liability:</strong>{' '}
-                  {getDocStatusLabel(compliance.glDays)}
-                </p>
-                <p>
-                  <strong>GL expiration:</strong>{' '}
-                  {sub.gl_expiration_date || '—'}
-                </p>
-                <p>
-                  <strong>GL agent email:</strong>{' '}
-                  {sub.gl_agent_email || '—'}
-                </p>
+                <div style={styles.detailGrid}>
+                  <div style={styles.infoBlock}>
+                    <div style={styles.label}>Company Info</div>
+                    <div style={styles.value}><strong>Contact:</strong> {sub.contact_name || '—'}</div>
+                    <div style={styles.value}><strong>Sub email:</strong> {sub.subcontractor_email || '—'}</div>
+                    <div style={styles.value}><strong>Last requested:</strong> {sub.last_requested_date || '—'}</div>
+                    <div style={styles.value}><strong>Request status:</strong> {sub.request_status || 'Not Requested'}</div>
+                  </div>
 
-                <hr style={{ margin: '12px 0' }} />
+                  <div style={styles.infoBlock}>
+                    <div style={styles.label}>General Liability</div>
+                    <div style={styles.value}><strong>Status:</strong> {getDocStatusLabel(c.glDays)}</div>
+                    <div style={styles.value}><strong>Expiration:</strong> {sub.gl_expiration_date || '—'}</div>
+                    <div style={styles.value}><strong>Agent email:</strong> {sub.gl_agent_email || '—'}</div>
+                  </div>
 
-                <p>
-                  <strong>Workers&apos; Comp exempt:</strong>{' '}
-                  {compliance.isExempt ? 'Yes' : 'No'}
-                </p>
+                  <div style={styles.infoBlock}>
+                    <div style={styles.label}>Workers' Comp / ICEC</div>
+                    <div style={styles.value}><strong>WC exempt:</strong> {c.isExempt ? 'Yes' : 'No'}</div>
 
-                {compliance.isExempt ? (
-                  <>
-                    <p>
-                      <strong>ICEC:</strong> {getDocStatusLabel(compliance.icecDays)}
-                    </p>
-                    <p>
-                      <strong>ICEC expiration:</strong>{' '}
-                      {sub.icec_expiration_date || '—'}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p>
-                      <strong>Workers&apos; Comp:</strong>{' '}
-                      {getDocStatusLabel(compliance.wcDays)}
-                    </p>
-                    <p>
-                      <strong>WC expiration:</strong>{' '}
-                      {sub.wc_expiration_date || '—'}
-                    </p>
-                    <p>
-                      <strong>WC agent email:</strong>{' '}
-                      {sub.wc_agent_email || '—'}
-                    </p>
-                  </>
-                )}
+                    {c.isExempt ? (
+                      <>
+                        <div style={styles.value}><strong>ICEC status:</strong> {getDocStatusLabel(c.icecDays)}</div>
+                        <div style={styles.value}><strong>ICEC expiration:</strong> {sub.icec_expiration_date || '—'}</div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={styles.value}><strong>WC status:</strong> {getDocStatusLabel(c.wcDays)}</div>
+                        <div style={styles.value}><strong>WC expiration:</strong> {sub.wc_expiration_date || '—'}</div>
+                        <div style={styles.value}><strong>WC agent email:</strong> {sub.wc_agent_email || '—'}</div>
+                      </>
+                    )}
+                  </div>
 
-                <p>
-                  <strong>Last requested date:</strong>{' '}
-                  {sub.last_requested_date || '—'}
-                </p>
-                <p>
-                  <strong>Request status:</strong>{' '}
-                  {sub.request_status || 'Not Requested'}
-                </p>
+                  <div style={styles.infoBlock}>
+                    <div style={styles.label}>Notes</div>
+                    <div>{sub.notes || '—'}</div>
+                  </div>
+                </div>
 
-                <p><strong>Notes:</strong> {sub.notes || '—'}</p>
-
-                <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={styles.actionRow}>
                   {(sub.subcontractor_email || sub.gl_agent_email || sub.wc_agent_email) && (
                     <>
-                      <a
-                        href={buildMailtoLink(sub)}
-                        style={{
-                          display: 'inline-block',
-                          padding: '10px 14px',
-                          border: '1px solid #333',
-                          borderRadius: '8px',
-                          textDecoration: 'none',
-                          color: '#111',
-                          backgroundColor: '#fff',
-                        }}
-                      >
+                      <a href={buildMailtoLink(sub)} style={styles.buttonSecondary}>
                         Request Updated Insurance
                       </a>
 
-                      <button type="button" onClick={() => markRequestSent(sub.id)}>
+                      <button type="button" style={styles.buttonSecondary} onClick={() => markRequestSent(sub.id)}>
                         Mark Request Sent
                       </button>
                     </>
                   )}
 
-                  <button type="button" onClick={() => startEdit(sub)}>
+                  <button type="button" style={styles.buttonSecondary} onClick={() => startEdit(sub)}>
                     Edit
                   </button>
 
-                  <button type="button" onClick={() => handleDelete(sub.id)}>
+                  <button type="button" style={styles.buttonSecondary} onClick={() => handleDelete(sub.id)}>
                     Delete
                   </button>
                 </div>
